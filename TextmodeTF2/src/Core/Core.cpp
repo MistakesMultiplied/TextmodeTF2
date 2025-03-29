@@ -10,7 +10,7 @@
 
 void CCore::AppendFailText(const char* sMessage, bool bCritical)
 {
-	if (!m_bTimeout)
+	if (!m_bTimeout && !bCritical)
 		return;
 
 	ssFailStream << std::format("{}\n", sMessage);
@@ -130,15 +130,19 @@ int CCore::LoadClient()
 
 void CCore::Load()
 {
-	auto StartTime = std::chrono::steady_clock::now();
 	G::CurrentPath = std::filesystem::current_path().string() + "\\TextmodeTF2";
 
 	do
 	{
-		// 5 seconds should be enough for tf2 to load all modules (unless youre running 100 game instances)
-		m_bTimeout = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - StartTime).count() >= 20;
-
 		Sleep(10);
+
+		// if all required modules are loaded and we still fail stop trying to load
+		m_bTimeout = GetModuleHandleA("SDL2.dll") &&
+			GetModuleHandleA("filesystem_stdio.dll") &&
+			GetModuleHandleA("engine.dll") &&
+			GetModuleHandleA("materialsystem.dll") &&
+			GetModuleHandleA("client.dll");
+
 		int iSDL = m_bSDLLoaded ? 1 : LoadSDL();
 		CHECK(iSDL)
 		int iFilesystem = m_bFilesystemLoaded ? 1 : LoadFilesystem();
