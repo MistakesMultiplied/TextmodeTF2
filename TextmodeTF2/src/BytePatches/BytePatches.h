@@ -31,12 +31,11 @@ public:
 	{
 		{"engine",
 		{
+			// V_RenderView
+			// Removes Sleep(15) call
 			BytePatch("engine.dll", "E8 ? ? ? ? 48 85 FF 74 ? 45 33 C9 89 74 24", 0x0, "90 90 90 90 90"),
+			// Skip downloading resources
 			BytePatch("engine.dll", "75 ? 48 8B 0D ? ? ? ? 48 8D 93", 0x0, "71")
-			//BytePatch("engine.dll", "48 8B C8 48 8B 10 FF 92 ? ? ? ? 48 8B 0D ? ? ? ? 48 8B 01", 0x0, "90 90 90 90 90 90 90 90 90 90 90 90"),
-			//BytePatch("engine.dll", "E8 ? ? ? ? 90 90 90", 0x0, "90 90 90 90 90"),
-			//BytePatch("engine.dll", "48 8B C8 48 8B 10 FF 92 ? ? ? ? 48 85 DB", 0x0, "90 90 90 90 90 90 90 90 90 90 90 90"),
-			//BytePatch("engine.dll", "E8 ? ? ? ? 90 90 90", 0x0, "90 90 90 90 90") 
 		}},
 		//{"vgui",
 		//{
@@ -44,12 +43,19 @@ public:
 		//}},
 		{"client",
 		{
+			// C_BaseAnimating::DoAnimationEvents
 			BytePatch("client.dll", "0F 84 ? ? ? ? 53 41 56 48 83 EC ? 83 B9", 0x0, "C3"),
+			// CParticleCollection::Init
 			BytePatch("client.dll", "57 48 83 EC ? 48 8B DA 48 8B F9 48 85 D2 74 ? 48 8B 0D ? ? ? ? 48 8B 89", 0x0, "31 C0 C3"),
+			// CParticleSystemMgr::PrecacheParticleSystem
 			BytePatch("client.dll", "74 ? 53 48 83 EC ? 80 3A", 0x0, "C3"),
+			// CParticleProperty::Create
+			// no longer breaks amalgam since i made a textmode version of it
 			BytePatch("client.dll", "44 89 44 24 ? 53 55 56 57 41 54 41 56", 0x0, "31 C0 C3"),
+			// CViewRender::Render
 			BytePatch("client.dll", "48 89 50 ? 55 57 41 56", 0x0, "31 C0 C3"),
-			BytePatch("client.dll", "4D 85 F6 0F 84 ? ? ? ? 49 8B CE E8 ? ? ? ? 83 F8", 0x0, "83 F6 00") // This fixes the datacache.dll crash
+			// This fixes the datacache.dll crash
+			BytePatch("client.dll", "4D 85 F6 0F 84 ? ? ? ? 49 8B CE E8 ? ? ? ? 83 F8", 0x0, "83 F6 00")
 		}}
 	};
 };

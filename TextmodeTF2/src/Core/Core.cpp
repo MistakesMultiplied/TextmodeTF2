@@ -101,21 +101,13 @@ int CCore::LoadVGui()
 
 int CCore::LoadMatSys()
 {
-	if (!U::Signatures.Initialize() || !U::Interfaces.Initialize())
+	if (!U::Interfaces.Initialize())
 		return LOAD_WAIT;
-
-	// Number of materials
-	// I dont think it does anything useful
-	// *reinterpret_cast<int*>(I::MaterialSystem + 866) = 0;
 
 	I::MaterialSystem->SetInStubMode(true);
 
 	static std::vector<const char*> vMatSystemHooks
 	{
-		/*
-		"IMaterialSystem_CreateMaterial", "IMaterialSystem_CreateProceduralTexture",
-		"IMaterialSystem_FindMaterial", "IMaterialSystem_FindTexture", "IMaterialSystem_NextMaterial",
-		*/
 		"IMaterialSystem_CreateRenderTargetTexture", "IMaterialSystem_CreateNamedRenderTargetTextureEx",
 		"IMaterialSystem_CreateNamedRenderTargetTexture", "IMaterialSystem_CreateNamedRenderTargetTextureEx2",
 		"IMaterialSystem_SwapBuffers"
@@ -143,8 +135,8 @@ void CCore::Load()
 
 	do
 	{
-		// 5 seconds should be enough for tf2 to load all modules
-		m_bTimeout = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - StartTime).count() >= 5;
+		// 5 seconds should be enough for tf2 to load all modules (unless youre running 100 game instances)
+		m_bTimeout = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - StartTime).count() >= 20;
 
 		Sleep(10);
 		int iSDL = m_bSDLLoaded ? 1 : LoadSDL();
@@ -171,8 +163,7 @@ void CCore::Loop()
 	{
 		if (m_bUnload)
 			break;
-		
-		// *reinterpret_cast<int*>(I::MaterialSystem + 866) = 0;
+
 		Sleep(15);
 	}
 }
@@ -184,7 +175,7 @@ void CCore::Unload()
 
 	ssFailStream << "\nCtrl + C to copy. Logged to TextmodeTF2\\fail_log.txt. \n";
 	ssFailStream << "Built @ " __DATE__ ", " __TIME__;
-	SDK::Output("Failed to load", ssFailStream.str().c_str(), true, MB_OK | MB_ICONERROR);
+//	SDK::Output("Failed to load", ssFailStream.str().c_str(), true, MB_OK | MB_ICONERROR);
 	ssFailStream << "\n\n\n\n";
 	std::ofstream file;
 	file.open(G::CurrentPath + "\\fail_log.txt", std::ios_base::app);
