@@ -17,18 +17,6 @@ void CCore::AppendFailText(const char* sMessage, bool bCritical)
 	OutputDebugStringA(std::format("{}\n", sMessage).c_str());
 }
 
-int CCore::LoadSDL()
-{
-	G::SDL_CreateWindowAddr = U::Memory.GetModuleExport<uintptr_t>("SDL2.dll", "SDL_CreateWindow");
-	if (!G::SDL_CreateWindowAddr)
-		return LOAD_WAIT;
-
-	if (!U::Hooks.Initialize("SDL_CreateWindow"))
-		return LOAD_FAIL;
-
-	return m_bSDLLoaded = true;
-}
-
 int CCore::LoadFilesystem()
 {
 	G::IFileSystemAddr = reinterpret_cast<uintptr_t>(U::Memory.FindInterface("filesystem_stdio.dll", "VFileSystem022"));
@@ -55,8 +43,15 @@ int CCore::LoadFilesystem()
 
 int CCore::LoadEngine()
 {
+	static bool bTextmodeInit{ false };
+	if(!G::g_bTextModeAddr)
+		G::g_bTextModeAddr = U::Memory.FindSignature("engine.dll", "88 15 ? ? ? ? 48 8B 4E");
+	if (!bTextmodeInit && G::g_bTextModeAddr)
+		*reinterpret_cast<bool*>(U::Memory.RelToAbs(G::g_bTextModeAddr, 0x2)) = bTextmodeInit = true;
+
 	static bool bStartupGraphicHookInit{ false };
-	G::CVideoModeCommon_SetupStartupGraphicAddr = U::Memory.FindSignature("engine.dll", "48 8B C4 48 89 58 ? 48 89 70 ? 48 89 78 ? 55 48 8D A8 ? ? ? ? 48 81 EC ? ? ? ? 48 8B F9");
+	if (!G::CVideoModeCommon_SetupStartupGraphicAddr)
+		G::CVideoModeCommon_SetupStartupGraphicAddr = U::Memory.FindSignature("engine.dll", "48 8B C4 48 89 58 ? 48 89 70 ? 48 89 78 ? 55 48 8D A8 ? ? ? ? 48 81 EC ? ? ? ? 48 8B F9");
 	if (!bStartupGraphicHookInit && G::CVideoModeCommon_SetupStartupGraphicAddr)
 	{
 		if (!U::Hooks.Initialize("CVideoModeCommon_SetupStartupGraphic"))
@@ -65,21 +60,20 @@ int CCore::LoadEngine()
 	}
 
 	static bool bInsecureBypassInit{ false };
-	G::g_bAllowSecureServersAddr = U::Memory.FindSignature("engine.dll", "40 88 35 ? ? ? ? 40 84 FF");
-	G::Host_IsSecureServerAllowedAddr = U::Memory.FindSignature("engine.dll", "48 83 EC ? FF 15 ? ? ? ? 48 8D 15 ? ? ? ? 48 8B C8 4C 8B 00 41 FF 50 ? 85 C0 75");
-	if (G::g_bAllowSecureServersAddr && G::Host_IsSecureServerAllowedAddr)
+	if (!bInsecureBypassInit)
 	{
-		if (!U::Hooks.Initialize("Host_IsSecureServerAllowed"))
-			return LOAD_FAIL;
-		bInsecureBypassInit = true;
+		if (!G::g_bAllowSecureServersAddr || !G::Host_IsSecureServerAllowedAddr)
+		{
+			G::g_bAllowSecureServersAddr = U::Memory.FindSignature("engine.dll", "40 88 35 ? ? ? ? 40 84 FF");
+			G::Host_IsSecureServerAllowedAddr = U::Memory.FindSignature("engine.dll", "48 83 EC ? FF 15 ? ? ? ? 48 8D 15 ? ? ? ? 48 8B C8 4C 8B 00 41 FF 50 ? 85 C0 75");
+		}
+		if (G::g_bAllowSecureServersAddr && G::Host_IsSecureServerAllowedAddr)
+		{
+			if (!U::Hooks.Initialize("Host_IsSecureServerAllowed"))
+				return LOAD_FAIL;
+			bInsecureBypassInit = true;
+		}
 	}
-
-	static bool bTextmodeInit{ false };
-	G::g_bTextModeAddr = U::Memory.FindSignature("engine.dll", "88 15 ? ? ? ? 48 8B 4E");
-
-	// Enables textmode
-	if (!bTextmodeInit && G::g_bTextModeAddr)
-		*reinterpret_cast<bool*>(U::Memory.RelToAbs(G::g_bTextModeAddr, 0x2)) = bTextmodeInit = true;
 
 	static bool bBytePatchesInit{ false };
 	if (!bBytePatchesInit && U::BytePatches.Initialize("engine"))
@@ -89,14 +83,6 @@ int CCore::LoadEngine()
 		return LOAD_WAIT;
 
 	return m_bEngineLoaded = true;
-}
-
-int CCore::LoadVGui()
-{
-	if (!U::BytePatches.Initialize("vgui"))
-		return LOAD_WAIT;
-
-	return m_bVGuiLoaded = true;
 }
 
 int CCore::LoadMatSys()
@@ -134,31 +120,26 @@ void CCore::Load()
 
 	do
 	{
-		Sleep(10);
+		//Sleep(10);
 
 		// if all required modules are loaded and we still fail stop trying to load
-		m_bTimeout = GetModuleHandleA("SDL2.dll") &&
-			GetModuleHandleA("filesystem_stdio.dll") &&
+		m_bTimeout = GetModuleHandleA("filesystem_stdio.dll") &&
 			GetModuleHandleA("engine.dll") &&
 			GetModuleHandleA("materialsystem.dll") &&
 			GetModuleHandleA("client.dll");
 
-		int iSDL = m_bSDLLoaded ? 1 : LoadSDL();
-		CHECK(iSDL)
 		int iFilesystem = m_bFilesystemLoaded ? 1 : LoadFilesystem();
 		CHECK(iFilesystem)
 		int iEngine = m_bEngineLoaded ? 1 : LoadEngine();
 		CHECK(iEngine)
-		//int iVGui = m_bVGuiLoaded ? 1 : LoadVGui();
-		//CHECK(iVGui)
 		int iMatSys = m_bMatSysLoaded ? 1 : LoadMatSys();
 		CHECK(iMatSys)
 		int iClient = m_bClientLoaded ? 1 : LoadClient();
 		CHECK(iClient)
 	}
-	while (!m_bSDLLoaded || !m_bFilesystemLoaded || !m_bEngineLoaded /*|| !m_bVGuiLoaded*/ || !m_bMatSysLoaded || !m_bClientLoaded);
+	while (!m_bFilesystemLoaded || !m_bEngineLoaded || !m_bMatSysLoaded || !m_bClientLoaded);
 
-	SDK::Output("TextmodeTF2", "Loaded", true);
+	SDK::Output("TextmodeTF2", std::format("Loaded in {} seconds", SDK::PlatFloatTime()).c_str());
 }
 
 void CCore::Loop()
@@ -168,7 +149,7 @@ void CCore::Loop()
 		if (m_bUnload)
 			break;
 
-		Sleep(15);
+		Sleep(3600000);
 	}
 }
 

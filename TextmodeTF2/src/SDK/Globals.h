@@ -6,7 +6,6 @@
 namespace G
 {
 	inline std::string CurrentPath{};
-	inline uintptr_t SDL_CreateWindowAddr{};
 	inline uintptr_t CVideoModeCommon_SetupStartupGraphicAddr{};
 	inline uintptr_t IFileSystemAddr{};
 	inline uintptr_t IBaseFileSystemAddr{};

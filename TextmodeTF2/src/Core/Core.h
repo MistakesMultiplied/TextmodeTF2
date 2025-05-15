@@ -16,12 +16,10 @@ public:
 	bool m_bUnload = false;
 	bool m_bTimeout = false;
 private:
-	bool m_bSDLLoaded = false, m_bFilesystemLoaded = false, m_bEngineLoaded = false, m_bVGuiLoaded = false, m_bMatSysLoaded = false, m_bClientLoaded = false;
+	bool m_bFilesystemLoaded = false, m_bEngineLoaded = false, m_bMatSysLoaded = false, m_bClientLoaded = false;
 
-	int LoadSDL();
 	int LoadFilesystem();
 	int LoadEngine();
-	int LoadVGui();
 	int LoadMatSys();
 	int LoadClient();
 

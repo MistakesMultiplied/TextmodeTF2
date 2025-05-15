@@ -16,7 +16,7 @@ MAKE_HOOK(IFileSystem_FindFirst, U::Memory.GetVFunc(reinterpret_cast<void*>(G::I
 {
 	auto p = CALL_ORIGINAL(rcx, pWildCard, pHandle);
 	while (p && SDK::BlacklistFile(p))
-		p = Hooks::IFileSystem_FindNext::Func(rcx, *pHandle);
+		p = Hooks::IFileSystem_FindNext::Hook.Call<const char*>(rcx, *pHandle);
 
 	return p;
 }
@@ -26,11 +26,10 @@ MAKE_HOOK(IFileSystem_AsyncReadMultiple, U::Memory.GetVFunc(reinterpret_cast<voi
 {
 	for (int i = 0; pRequests && i < nRequests; ++i)
 	{
-		// fprintf(stderr, "AsyncReadMultiple %d %s\n", nRequests, pRequests[i]);
 		if (SDK::BlacklistFile(pRequests[i].pszFilename))
 		{
 			if (nRequests > 1)
-				fprintf(stderr, "FIXME: blocked AsyncReadMultiple for %d requests due to some filename being blacklisted\n", nRequests);
+				SDK::Output("IFileSystem_AsyncReadMultiple", std::format("FIXME: blocked AsyncReadMultiple for {} requests due to some filename being blacklisted", nRequests).c_str());
 			return FSASYNC_ERR_FILEOPEN;
 		}
 	}
@@ -40,7 +39,6 @@ MAKE_HOOK(IFileSystem_AsyncReadMultiple, U::Memory.GetVFunc(reinterpret_cast<voi
 MAKE_HOOK(IFileSystem_OpenEx, U::Memory.GetVFunc(reinterpret_cast<void*>(G::IFileSystemAddr), 69), FileHandle_t,
 		  void* rcx, const char* pFileName, const char* pOptions, unsigned flags, const char* pathID, char** ppszResolvedFilename)
 {
-	// fprintf(stderr, "OpenEx: %s\n", pFileName);
 	if (pFileName && SDK::BlacklistFile(pFileName))
 		return nullptr;
 
@@ -50,7 +48,6 @@ MAKE_HOOK(IFileSystem_OpenEx, U::Memory.GetVFunc(reinterpret_cast<void*>(G::IFil
 MAKE_HOOK(IFileSystem_ReadFileEx, U::Memory.GetVFunc(reinterpret_cast<void*>(G::IFileSystemAddr), 71), int,
 		  void* rcx, const char* pFileName, const char* pPath, void** ppBuf, bool bNullTerminate, bool bOptimalAlloc, int nMaxBytes, int nStartingByte, FSAllocFunc_t pfnAlloc)
 {
-	// fprintf(stderr, "ReadFileEx: %s\n", pFileName);
 	if (SDK::BlacklistFile(pFileName))
 		return 0;
 
@@ -60,7 +57,7 @@ MAKE_HOOK(IFileSystem_ReadFileEx, U::Memory.GetVFunc(reinterpret_cast<void*>(G::
 MAKE_HOOK(IFileSystem_AddFilesToFileCache, U::Memory.GetVFunc(reinterpret_cast<void*>(G::IFileSystemAddr), 103), void,
 		  void* rcx, FileCacheHandle_t cacheId, const char** ppFileNames, int nFileNames, const char* pPathID)
 {
-	fprintf(stderr, "AddFilesToFileCache: %d\n", nFileNames);
+	SDK::Output("IFileSystem_AddFilesToFileCache", std::format("AddFilesToFileCache: {}", nFileNames).c_str());
 	for (int i = 0; i < nFileNames; ++i)
-		fprintf(stderr, "%s\n", ppFileNames[i]);
+		SDK::Output("IFileSystem_AddFilesToFileCache", ppFileNames[i]);
 }

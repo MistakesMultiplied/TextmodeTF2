@@ -15,7 +15,6 @@
     <ClCompile Include="src\SDK\SDK.cpp" />
     <ClCompile Include="src\Utils\CrashLog\CrashLog.cpp" />
     <ClCompile Include="src\BytePatches\BytePatches.cpp" />
-    <ClCompile Include="src\Hooks\SDL_CreateWindow.cpp" />
     <ClCompile Include="src\Hooks\IFileSystem_Hooks.cpp" />
     <ClCompile Include="src\Hooks\IBaseFileSystem_Hooks.cpp" />
     <ClCompile Include="src\Hooks\IMaterialSystem_Hooks.cpp" />

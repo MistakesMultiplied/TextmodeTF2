@@ -37,16 +37,12 @@ public:
 			// Skip downloading resources
 			BytePatch("engine.dll", "75 ? 48 8B 0D ? ? ? ? 48 8D 93", 0x0, "71")
 		}},
-		//{"vgui",
-		//{
-		//	BytePatch("vgui2.dll", "FF 92 ? ? ? ? 48 85 FF", 0x0, "90 90 90 90 90 90")
-		//}},
 		{"client",
 		{
 			// C_BaseAnimating::DoAnimationEvents
 			BytePatch("client.dll", "0F 84 ? ? ? ? 53 41 56 48 83 EC ? 83 B9", 0x0, "C3"),
 			// CParticleCollection::Init
-			BytePatch("client.dll", "57 48 83 EC ? 48 8B DA 48 8B F9 48 85 D2 74 ? 48 8B 0D ? ? ? ? 48 8B 89", 0x0, "31 C0 C3"),
+			BytePatch("client.dll", "57 48 83 EC ? 48 8B DA 48 8B F9 48 85 D2 74 ? 48 8B 0D ? ? ? ? 48 8B 89", 0x0, "31 C0 90 90 C3"),
 			// CParticleSystemMgr::PrecacheParticleSystem
 			BytePatch("client.dll", "74 ? 53 48 83 EC ? 80 3A", 0x0, "C3"),
 			// CParticleProperty::Create

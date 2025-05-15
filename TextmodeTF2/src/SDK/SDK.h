@@ -12,6 +12,7 @@
 
 namespace SDK
 {
-	void Output(const char* cFunction, const char* cLog = nullptr, bool bDebug = false, int iMessageBox = -1);
+	void Output(const char* cFunction, const char* cLog = nullptr, bool bDebug = true, int iMessageBox = -1);
 	bool BlacklistFile(const char* cFileName);
+	double PlatFloatTime();
 }

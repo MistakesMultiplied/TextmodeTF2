@@ -58,3 +58,9 @@ bool SDK::BlacklistFile(const char* cFileName)
 
 	return false;
 }
+
+double SDK::PlatFloatTime()
+{
+	static auto Plat_FloatTime = U::Memory.GetModuleExport<double(*)()>("tier0.dll", "Plat_FloatTime");
+	return Plat_FloatTime();
+}
