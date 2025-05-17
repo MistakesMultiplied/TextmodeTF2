@@ -35,7 +35,9 @@ public:
 			// Removes Sleep(15) call
 			BytePatch("engine.dll", "E8 ? ? ? ? 48 85 FF 74 ? 45 33 C9 89 74 24", 0x0, "90 90 90 90 90"),
 			// Skip downloading resources
-			BytePatch("engine.dll", "75 ? 48 8B 0D ? ? ? ? 48 8D 93", 0x0, "71")
+			BytePatch("engine.dll", "75 ? 48 8B 0D ? ? ? ? 48 8D 93", 0x0, "71"),
+			// The method
+			BytePatch("engine.dll", "0F 85 ? ? ? ? 48 8D 15 ? ? ? ? B9", 0x0, "0F 81")
 		}},
 		{"client",
 		{
