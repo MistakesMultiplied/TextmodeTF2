@@ -1,11 +1,24 @@
 #include <Windows.h>
 #include "Core/Core.h"
 #include "Utils/CrashLog/CrashLog.h"
+#include <exception>
 
 DWORD WINAPI MainThread(LPVOID lpParam)
 {
-	U::Core.Load();
-	U::Core.Loop();
+	try
+	{
+		U::Core.Load();
+		U::Core.Loop();
+	}
+	catch (const std::exception& e)
+	{
+		U::Core.AppendFailText(e.what(), true);
+	}
+	catch (...)
+	{
+		U::Core.AppendFailText("Unknown exception caught in MainThread", true);
+	}
+
 	CrashLog::Unload(); // 0xC0000409
 	U::Core.Unload();
 
