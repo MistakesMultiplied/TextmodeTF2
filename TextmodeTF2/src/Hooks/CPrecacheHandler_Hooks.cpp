@@ -48,10 +48,7 @@ MAKE_HOOK(CSoundPrecache_PrecacheSound, U::Signatures.GetEngineSignature("48 89 
 {
     try
     {
-        // Always skip sound precaching
         return 0;
-        
-        return CALL_ORIGINAL(rcx, soundName, bPreload);
     }
     catch (const std::exception& e)
     {
