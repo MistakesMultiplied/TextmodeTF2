@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include "Core/Core.h"
 #include "Utils/CrashLog/CrashLog.h"
+#include <exception>
 
 DWORD WINAPI MainThread(LPVOID lpParam)
 {
@@ -18,7 +19,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 	if (fdwReason == DLL_PROCESS_ATTACH)
 	{
 		CrashLog::Initialize();
-
 		if (const auto hMainThread = CreateThread(nullptr, 0, MainThread, hinstDLL, 0, nullptr))
 			CloseHandle(hMainThread);
 	}

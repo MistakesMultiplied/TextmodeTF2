@@ -1,14 +1,20 @@
 #include "../SDK/SDK.h"
+#include "../Core/Core.h"
 
 MAKE_HOOK(IFileSystem_FindNext, U::Memory.GetVFunc(reinterpret_cast<void*>(G::IFileSystemAddr), 28), const char*,
 		  void* rcx, FileFindHandle_t handle)
 {
+	// Always skip file finding for performance.
+	return nullptr;
+
+	/*
 	const char* p;
 	do
 		p = CALL_ORIGINAL(rcx, handle);
 	while (p && SDK::BlacklistFile(p));
 
 	return p;
+	*/
 }
 
 MAKE_HOOK(IFileSystem_FindFirst, U::Memory.GetVFunc(reinterpret_cast<void*>(G::IFileSystemAddr), 27), const char*,
@@ -24,6 +30,19 @@ MAKE_HOOK(IFileSystem_FindFirst, U::Memory.GetVFunc(reinterpret_cast<void*>(G::I
 MAKE_HOOK(IFileSystem_AsyncReadMultiple, U::Memory.GetVFunc(reinterpret_cast<void*>(G::IFileSystemAddr), 37), FSAsyncStatus_t,
 		  void* rcx, const FileAsyncRequest_t* pRequests, int nRequests, FSAsyncControl_t* phControls)
 {
+	// Always skip non-essential async reads.
+	bool hasEssential = false;
+	for (int i = 0; pRequests && i < nRequests; ++i)
+	{
+		if (pRequests[i].pszFilename && std::strstr(pRequests[i].pszFilename, ".bsp"))
+		{
+			hasEssential = true;
+			break;
+		}
+	}
+	if (!hasEssential)
+		return FSASYNC_ERR_FILEOPEN;
+
 	for (int i = 0; pRequests && i < nRequests; ++i)
 	{
 		if (SDK::BlacklistFile(pRequests[i].pszFilename))
@@ -57,7 +76,15 @@ MAKE_HOOK(IFileSystem_ReadFileEx, U::Memory.GetVFunc(reinterpret_cast<void*>(G::
 MAKE_HOOK(IFileSystem_AddFilesToFileCache, U::Memory.GetVFunc(reinterpret_cast<void*>(G::IFileSystemAddr), 103), void,
 		  void* rcx, FileCacheHandle_t cacheId, const char** ppFileNames, int nFileNames, const char* pPathID)
 {
+	// Always skip adding files to the file cache.
+	return;
+
+	/*
 	SDK::Output("IFileSystem_AddFilesToFileCache", std::format("AddFilesToFileCache: {}", nFileNames).c_str());
 	for (int i = 0; i < nFileNames; ++i)
 		SDK::Output("IFileSystem_AddFilesToFileCache", ppFileNames[i]);
+
+	// Call original only if not in aggressive map loading mode
+	return CALL_ORIGINAL(rcx, cacheId, ppFileNames, nFileNames, pPathID);
+	*/
 }

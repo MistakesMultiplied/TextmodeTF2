@@ -1,5 +1,6 @@
 #include "Core.h"
 
+
 #include "../SDK/SDK.h"
 #include "../BytePatches/BytePatches.h"
 #include <filesystem>
@@ -25,7 +26,7 @@ int CCore::LoadFilesystem()
 
 	G::IBaseFileSystemAddr = G::IFileSystemAddr + 0x8;
 
-	static std::vector<const char*> vFileSystemHooks
+	static std::vector<const char*> vFilesystemHooks
 	{
 		"IFileSystem_FindFirst", "IFileSystem_FindNext",
 		"IFileSystem_AsyncReadMultiple", "IFileSystem_OpenEx",
@@ -34,7 +35,7 @@ int CCore::LoadFilesystem()
 		"IBaseFileSystem_ReadFile"
 	};
 
-	for (auto cHook : vFileSystemHooks)
+	for (auto cHook : vFilesystemHooks)
 		if (!U::Hooks.Initialize(cHook))
 			return LOAD_FAIL;
 
@@ -108,7 +109,21 @@ int CCore::LoadMatSys()
 
 int CCore::LoadClient()
 {
-	if (!U::BytePatches.Initialize("client"))
+	static bool bCreateEntHookInit{ false };
+	if (!G::Client_CreateEntityByNameAddr)
+		G::Client_CreateEntityByNameAddr = U::Memory.FindSignature("client.dll", "40 53 48 83 EC ? 48 8B D9 E8 ? ? ? ? 48 8B D3");
+	if (!bCreateEntHookInit && G::Client_CreateEntityByNameAddr)
+	{
+		if (!U::Hooks.Initialize("Client_CreateEntityByName"))
+			return LOAD_FAIL;
+		bCreateEntHookInit = true;
+	}
+
+	static bool bBytePatchesInit{ false };
+	if (!bBytePatchesInit && U::BytePatches.Initialize("client"))
+		bBytePatchesInit = true;
+
+	if (!bCreateEntHookInit || !bBytePatchesInit)
 		return LOAD_WAIT;
 
 	return m_bClientLoaded = true;
@@ -120,8 +135,6 @@ void CCore::Load()
 
 	do
 	{
-		//Sleep(10);
-
 		// if all required modules are loaded and we still fail stop trying to load
 		m_bTimeout = GetModuleHandleA("filesystem_stdio.dll") &&
 			GetModuleHandleA("engine.dll") &&

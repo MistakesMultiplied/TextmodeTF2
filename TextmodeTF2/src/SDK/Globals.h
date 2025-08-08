@@ -12,4 +12,5 @@ namespace G
 	inline uintptr_t g_bTextModeAddr{};
 	inline uintptr_t g_bAllowSecureServersAddr{};
 	inline uintptr_t Host_IsSecureServerAllowedAddr{};
+	inline uintptr_t Client_CreateEntityByNameAddr{};
 };
