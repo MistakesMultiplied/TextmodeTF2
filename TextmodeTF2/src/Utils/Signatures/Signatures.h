@@ -47,6 +47,9 @@ public:
 	bool Initialize(const char* sName);
 	bool Initialize();
 
+	uintptr_t GetEngineSignature(const char* szPattern);
+	uintptr_t GetClientSignature(const char* szPattern);
+
 	inline void AddSignature(CSignature* pSignature)
 	{
 		m_mSignatures[pSignature->GetName()] = pSignature;

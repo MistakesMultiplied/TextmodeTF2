@@ -229,6 +229,8 @@
     <ClCompile Include="src\Hooks\Host_IsSecureServerAllowed.cpp" />
     <ClCompile Include="src\Hooks\IBaseFileSystem_Hooks.cpp" />
     <ClCompile Include="src\Hooks\IFileSystem_Hooks.cpp" />
+    <ClCompile Include="src\Hooks\CPrecacheHandler_Hooks.cpp" />
+    <ClCompile Include="src\Hooks\CEntityFactory_Hooks.cpp" />
     <ClCompile Include="src\Hooks\IMaterialSystem_Hooks.cpp" />
     <ClCompile Include="src\SDK\SDK.cpp" />
     <ClCompile Include="src\Utils\CrashLog\CrashLog.cpp" />
@@ -236,6 +238,12 @@
     <ClCompile Include="src\Utils\Interfaces\Interfaces.cpp" />
     <ClCompile Include="src\Utils\Memory\Memory.cpp" />
     <ClCompile Include="src\Utils\Signatures\Signatures.cpp" />
+    <ClCompile Include="src\Utils\DXSTUB\DirectXStub.cpp" />
+    <ClCompile Include="src\Utils\DXSTUB\StubDirect3D9.cpp" />
+    <ClCompile Include="src\Utils\DXSTUB\StubDirect3DDevice9_Core.cpp" />
+    <ClCompile Include="src\Utils\DXSTUB\StubDirect3DDevice9_Resources.cpp" />
+    <ClCompile Include="src\Utils\DXSTUB\StubResources.cpp" />
+    <ClCompile Include="src\Utils\DXSTUB\DirectXStubInit.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\MinHook\buffer.h" />
@@ -262,6 +270,7 @@
     <ClInclude Include="src\Utils\Interfaces\Interfaces.h" />
     <ClInclude Include="src\Utils\Memory\Memory.h" />
     <ClInclude Include="src\Utils\Signatures\Signatures.h" />
+    <ClInclude Include="src\Utils\DXSTUB\DirectXStub.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

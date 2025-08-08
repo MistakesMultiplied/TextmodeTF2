@@ -1,7 +1,9 @@
 #include "Core.h"
 
+
 #include "../SDK/SDK.h"
 #include "../BytePatches/BytePatches.h"
+#include "../Utils/DXSTUB/DirectXStub.h"
 #include <filesystem>
 
 #define LOAD_WAIT 0 - m_bTimeout
@@ -25,16 +27,19 @@ int CCore::LoadFilesystem()
 
 	G::IBaseFileSystemAddr = G::IFileSystemAddr + 0x8;
 
-	static std::vector<const char*> vFileSystemHooks
+	static std::vector<const char*> vAllHooks
 	{
+		// File System
 		"IFileSystem_FindFirst", "IFileSystem_FindNext",
 		"IFileSystem_AsyncReadMultiple", "IFileSystem_OpenEx",
 		"IFileSystem_ReadFileEx", "IFileSystem_AddFilesToFileCache",
 		"IBaseFileSystem_Open", "IBaseFileSystem_Precache",
-		"IBaseFileSystem_ReadFile"
+		"IBaseFileSystem_ReadFile",
+		// Entity Factory
+		"Client_CreateEntityByName"
 	};
 
-	for (auto cHook : vFileSystemHooks)
+	for (auto cHook : vAllHooks)
 		if (!U::Hooks.Initialize(cHook))
 			return LOAD_FAIL;
 
@@ -139,6 +144,12 @@ void CCore::Load()
 	}
 	while (!m_bFilesystemLoaded || !m_bEngineLoaded || !m_bMatSysLoaded || !m_bClientLoaded);
 
+	DirectXStub::Initialize();
+	if (DirectXStub::IsInitialized())
+	{
+		DirectXStub::InstallHooks();
+	}
+
 	SDK::Output("TextmodeTF2", std::format("Loaded in {} seconds", SDK::PlatFloatTime()).c_str());
 }
 
@@ -157,6 +168,7 @@ void CCore::Unload()
 {	
 	U::Hooks.Unload();
 	U::BytePatches.Unload();
+	DirectXStub::Shutdown();
 
 	ssFailStream << "\nCtrl + C to copy. Logged to TextmodeTF2\\fail_log.txt. \n";
 	ssFailStream << "Built @ " __DATE__ ", " __TIME__;

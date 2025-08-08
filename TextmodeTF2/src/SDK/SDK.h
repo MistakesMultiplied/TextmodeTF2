@@ -9,6 +9,7 @@
 #include "../Utils/Memory/Memory.h"
 #include <intrin.h>
 #include <format>
+#include <exception>
 
 namespace SDK
 {

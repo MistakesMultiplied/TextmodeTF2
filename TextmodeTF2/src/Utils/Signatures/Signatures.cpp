@@ -32,6 +32,16 @@ bool CSignatures::Initialize(const char* sName)
 	return pSignature && pSignature->Initialize();
 }
 
+uintptr_t CSignatures::GetEngineSignature(const char* szPattern)
+{
+    return U::Memory.FindSignature("engine.dll", szPattern);
+}
+
+uintptr_t CSignatures::GetClientSignature(const char* szPattern)
+{
+    return U::Memory.FindSignature("client.dll", szPattern);
+}
+
 bool CSignatures::Initialize()
 {
 	bool bFail{ false };
