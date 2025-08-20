@@ -1,6 +1,5 @@
 #include "Core.h"
 
-
 #include "../SDK/SDK.h"
 #include "../BytePatches/BytePatches.h"
 #include <filesystem>
@@ -109,21 +108,7 @@ int CCore::LoadMatSys()
 
 int CCore::LoadClient()
 {
-	static bool bCreateEntHookInit{ false };
-	if (!G::Client_CreateEntityByNameAddr)
-		G::Client_CreateEntityByNameAddr = U::Memory.FindSignature("client.dll", "40 53 48 83 EC ? 48 8B D9 E8 ? ? ? ? 48 8B D3");
-	if (!bCreateEntHookInit && G::Client_CreateEntityByNameAddr)
-	{
-		if (!U::Hooks.Initialize("Client_CreateEntityByName"))
-			return LOAD_FAIL;
-		bCreateEntHookInit = true;
-	}
-
-	static bool bBytePatchesInit{ false };
-	if (!bBytePatchesInit && U::BytePatches.Initialize("client"))
-		bBytePatchesInit = true;
-
-	if (!bCreateEntHookInit || !bBytePatchesInit)
+	if (!U::BytePatches.Initialize("client"))
 		return LOAD_WAIT;
 
 	return m_bClientLoaded = true;

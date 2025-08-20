@@ -1,5 +1,4 @@
 #include "../SDK/SDK.h"
-#include "../Core/Core.h"
 
 MAKE_HOOK(IFileSystem_FindNext, U::Memory.GetVFunc(reinterpret_cast<void*>(G::IFileSystemAddr), 28), const char*,
 		  void* rcx, FileFindHandle_t handle)

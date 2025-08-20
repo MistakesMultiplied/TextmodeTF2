@@ -229,7 +229,6 @@
     <ClCompile Include="src\Hooks\Host_IsSecureServerAllowed.cpp" />
     <ClCompile Include="src\Hooks\IBaseFileSystem_Hooks.cpp" />
     <ClCompile Include="src\Hooks\IFileSystem_Hooks.cpp" />
-    <ClCompile Include="src\Hooks\CEntityFactory_Hooks.cpp" />
     <ClCompile Include="src\Hooks\IMaterialSystem_Hooks.cpp" />
     <ClCompile Include="src\SDK\SDK.cpp" />
     <ClCompile Include="src\Utils\CrashLog\CrashLog.cpp" />

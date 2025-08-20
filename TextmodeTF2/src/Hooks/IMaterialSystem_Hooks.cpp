@@ -1,5 +1,4 @@
 #include "../SDK/SDK.h"
-#include "../Core/Core.h"
 
 MAKE_HOOK(IMaterialSystem_SwapBuffers, U::Memory.GetVFunc(I::MaterialSystem, 40), void, // 40
 		  void* rcx)

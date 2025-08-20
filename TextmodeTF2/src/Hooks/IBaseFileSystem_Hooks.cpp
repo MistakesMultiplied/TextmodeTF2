@@ -1,5 +1,4 @@
 #include "../SDK/SDK.h"
-#include "../Core/Core.h"
 
 MAKE_HOOK(IBaseFileSystem_Open, U::Memory.GetVFunc(reinterpret_cast<void*>(G::IBaseFileSystemAddr), 2), FileHandle_t,
 		  void* rcx, const char* pFileName, const char* pOptions, const char* pathID)
